@@ -331,8 +331,15 @@ function init() {
     // Initialize button visual state
     const btn = document.getElementById("audioStatus");
     if (btn) {
+        btn.innerText = "Click to start audio";
         btn.classList.add('pico-background-green-500');
         btn.classList.remove('pico-background-red');
+    }
+
+    // Keep UI in sync when the AudioContext state changes
+    if (con) {
+        con.onstatechange = updateAudioButtonUI;
+        updateAudioButtonUI();
     }
 }
 
@@ -594,7 +601,6 @@ function startSound() {
     lfoSystem.oscillator.start();
     lfoSystem2.oscillator.start();
     square_osc.start();
-    toggleAudio();
     updateDisplay();
 }
 
@@ -605,14 +611,8 @@ function defineListeners() {
     document.addEventListener("keydown", function (event) {
         if (con.state !== 'running' || !keyboardEnabled) return;
         setNote(event.key);
+        // Keep audio context active if needed
         con.resume();
-        // Ensure button reflects running state when audio resumes
-        const btn = document.getElementById("audioStatus");
-        if (btn) {
-            btn.innerText = "Click to stop audio";
-            btn.classList.remove('pico-green');
-            btn.classList.add('pico-red');
-        }
         updateDisplay();
     });
 
@@ -637,12 +637,6 @@ function defineListeners() {
         if (oscSlider) oscSlider.value = oscFreq;
         
         con.resume();
-        const btn = document.getElementById("audioStatus");
-        if (btn) {
-            btn.innerText = "Click to stop audio";
-            btn.classList.remove('pico-green');
-            btn.classList.add('pico-red');
-        }
         updateDisplay();
     });
     document.getElementById("HPFinput").addEventListener("input", function (event) {
@@ -853,29 +847,35 @@ function updateDisplay() {
     }
 }
 
-function toggleAudio() {
-    // this function is called when the user
-    // clicks the "start audio" button
-    // or interacts with the page in some other way
-    if (con.state === 'running') {
-        con.suspend();
-        const btn = document.getElementById("audioStatus");
-        if (btn) {
-            btn.innerText = "Click to start audio";
-            btn.classList.remove('pico-background-red');
-            btn.classList.add('pico-background-green-500');
-        }
-        console.log("Audio stopped");
-        return;
-    }
-    con.resume();
+// Keep the audio button UI in sync with the actual AudioContext state
+function updateAudioButtonUI() {
     const btn = document.getElementById("audioStatus");
-    if (btn) {
+    if (!btn || !con) return;
+    if (con.state === 'running') {
         btn.innerText = "Click to stop audio";
         btn.classList.remove('pico-background-green-500');
         btn.classList.add('pico-background-red');
+    } else {
+        btn.innerText = "Click to start audio";
+        btn.classList.remove('pico-background-red');
+        btn.classList.add('pico-background-green-500');
     }
-    console.log("Audio started");
+}
+
+async function toggleAudio() {
+    // Toggle audio context and update UI only after the operation completes
+    try {
+        if (con.state === 'running') {
+            await con.suspend();
+            console.log("Audio stopped");
+        } else {
+            await con.resume();
+            console.log("Audio started");
+        }
+    } catch (e) {
+        console.log("Audio toggle error:", e);
+    }
+    updateAudioButtonUI();
 }
 
 // this function is called when the user
