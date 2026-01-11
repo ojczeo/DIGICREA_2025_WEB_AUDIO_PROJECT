@@ -11,30 +11,40 @@
 <body>
   <div class="container-fluid">
     <header>
-      <h1>Two oscillators</h1>
-      
+      <div class="grid">
+        <h1>Two oscillators</h1>
+        <div>
+
+        </div>
+        <small>
+          <a href="https://github.com/ojczeo/DIGICREA_2025_WEB_AUDIO_PROJECT" target="_blank" rel="noopener">
+            GitHub: ojczeo/DIGICREA_2025_WEB_AUDIO_PROJECT
+          </a>
+        </small>
+      </div>
+
       <!-- Top UI: button, mouse control, legend -->
       <div class="grid">
         <div>
 
-        <div class="grid">
-          <div>
-            <button id="audioStatus" onclick="toggleAudio();">Click to start audio</button>
-            <button class="secondary" onclick="openHelpModal();">Help</button>
+          <div class="grid">
+            <div>
+              <button id="audioStatus" onclick="toggleAudio();">Click to start audio</button>
+              <button class="secondary" onclick="openHelpModal();">Help</button>
+            </div>
+            <div>
+              <label>
+                <input type="checkbox" id="keyboardToggle" role="switch" />
+                Keyboard Control
+              </label>
+              <label>
+                <input type="checkbox" id="mouseToggle" role="switch" />
+                Mouse Control
+              </label>
+            </div>
+
           </div>
           <div>
-            <label>
-              <input type="checkbox" id="keyboardToggle" role="switch" />
-              Keyboard Control
-            </label>
-             <label>
-          <input type="checkbox" id="mouseToggle" role="switch" />
-          Mouse Control
-        </label>
-          </div>
-          
-        </div>
-        <div>
             <label>
               Master Level: <span id="masterLevelDisplay">0.50</span>
               <input id="masterLevelInput" type="range" value="0.5" min="0" max="1" step="0.01" />
@@ -67,11 +77,13 @@
               </label>
             </div>
             <div role=""">
-              <button onclick="loadPreset();">Load</button>
+              <button onclick=" loadPreset();">Load</button>
               <button onclick="deletePreset();" style="background-color: #ef4444; color: white;">Delete</button>
               <button class="outline" onclick="downloadPresets();">Download</button>
-              <input type="file" id="presetFileInput" accept=".json" style="display: none;" onchange="uploadPresets(event);" />
-              <button class="outline secondary" onclick="document.getElementById('presetFileInput').click();">Upload</button>
+              <input type="file" id="presetFileInput" accept=".json" style="display: none;"
+                onchange="uploadPresets(event);" />
+              <button class="outline secondary"
+                onclick="document.getElementById('presetFileInput').click();">Upload</button>
             </div>
           </div>
         </div>
@@ -165,7 +177,7 @@
       <div class="grid">
         <div>
           <h5>Filters</h5>
-          
+
           <!-- HPF -->
           <div class="grid">
             <div>
@@ -195,7 +207,7 @@
 
         <div>
           <h5>Effects</h5>
-          
+
           <!-- Distortion -->
           <div class="grid">
             <div>
@@ -211,7 +223,7 @@
               </label>
             </div>
           </div>
-<!-- Reverb -->
+          <!-- Reverb -->
           <div class="grid">
             <div>
               <label>
@@ -235,16 +247,16 @@
               </label>
             </div>
             <label>
-                Time: <span id="delayTimeDisplay">0.30</span>s
-                <input id="delayTimeInput" type="range" value="0.3" min="0" max="2" step="0.01" />
-              </label>
-              <label>
-                Feedback: <span id="delayFeedbackDisplay">0.40</span>
-                <input id="delayFeedbackInput" type="range" value="0.4" min="0" max="0.9" step="0.01" />
-              </label>
+              Time: <span id="delayTimeDisplay">0.30</span>s
+              <input id="delayTimeInput" type="range" value="0.3" min="0" max="2" step="0.01" />
+            </label>
+            <label>
+              Feedback: <span id="delayFeedbackDisplay">0.40</span>
+              <input id="delayFeedbackInput" type="range" value="0.4" min="0" max="0.9" step="0.01" />
+            </label>
           </div>
 
-          
+
         </div>
       </div>
     </main>
@@ -260,9 +272,12 @@
         </header>
         <h3>Controls</h3>
         <ul>
-          <li><strong>Keyboard Control:</strong> Enable the toggle and press W, X, C, V keys to change frequency of the 1st oscillator</li>
-          <li><strong>Mouse Control:</strong> Enable the toggle and move your mouse to change frequency and frequency modulation of the 1st oscillator</li>
-          <li><strong>Oscillators:</strong> Two independent oscillators with frequency, type (sine/square/sawtooth/triangle), and LFO controls</li>
+          <li><strong>Keyboard Control:</strong> Enable the toggle and press W, X, C, V keys to change frequency of the
+            1st oscillator</li>
+          <li><strong>Mouse Control:</strong> Enable the toggle and move your mouse to change frequency and frequency
+            modulation of the 1st oscillator</li>
+          <li><strong>Oscillators:</strong> Two independent oscillators with frequency, type
+            (sine/square/sawtooth/triangle), and LFO controls</li>
           <li><strong>Filters:</strong> High-pass (HPF) and Low-pass (LPF) filters to shape the sound</li>
           <li><strong>Effects:</strong> Distortion, Delay, and Reverb with on/off toggles and parameter controls</li>
         </ul>
