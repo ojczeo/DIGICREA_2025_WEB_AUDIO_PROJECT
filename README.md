@@ -94,7 +94,7 @@ Option 3 (Direct):
 
 ## Usage
 
-1. **Start Audio:** Click "▶️ Play" or interact with any control to initialize the audio context
+1. **Start Audio:** Click "🔊 Click to start audio" or interact with others controlls to initialize the audio context
 2. **Enable Controls:**
    - Toggle **Keyboard Control** to nudge frequencies: Z/X adjust OSC1 by ±10 Hz; C/V adjust OSC2 by ±10 Hz (clamped to slider ranges)
    - Toggle **Mouse Control**; the full browser window maps vertical motion to frequency and horizontal to LFO rate. Use the per-oscillator mouse switches (OSC1/OSC2) to choose which oscillators react; input fields are ignored so typing doesn't affect audio
@@ -183,16 +183,6 @@ LFO2 ↷ modulates OSC2 frequency
 - **Real-time Modulation:** LFO changes apply immediately without audio artifacts
 - **CORS:** Preset JSON loading may fail when opening `index.html` directly (file://); use a local server
 
-## Troubleshooting
-
-| Issue | Solution |
-|-------|----------|
-| No sound | Click "▶️ Play" button to start audio context |
-| Presets not loading | Run via HTTP server (see above) |
-| Low/distorted audio | Reduce levels on oscillators or effects; adjust Master Level |
-| LFO not modulating | Ensure LFO toggle is ON and frequency > 0 |
-| Effects not heard | Toggle effect ON and adjust parameters (distortion amount, delay/reverb mix) |
-
 ## Credits
 
 - **UI:** [Pico.css](https://picocss.com/)
@@ -202,5 +192,6 @@ LFO2 ↷ modulates OSC2 frequency
 
 ## License
 
-Educational project; open source.
+GPL‑3.0‑or‑later
+[LICENSE document](LICENSE.md)
 
