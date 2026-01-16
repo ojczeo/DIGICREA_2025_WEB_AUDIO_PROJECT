@@ -19,6 +19,16 @@ A professional browser-based synthesizer built with the Web Audio API. Features 
   - Toggle enable/disable per LFO
   - Modulates oscillator frequency in real-time
 
+### MIDI Control
+- **Web MIDI API integration** for external MIDI keyboard support
+- **Per-oscillator routing:** Choose which oscillators respond to MIDI via OSC1/OSC2 switches (enables legato playing)
+- **Note-to-frequency mapping:** MIDI notes (0–127) convert to frequencies using standard A4=440Hz tuning
+- **Two MIDI gain modes:**
+  - **Velocity Mode (default):** MIDI note velocity (0–127) maps to gain (0–1); provides natural dynamics responsive to playing intensity
+  - **Modwheel-Only Mode:** Modulation wheel (CC1) exclusively controls gain; notes play at full volume with level controlled smoothly by wheel movement
+  - Toggle "Use Velocity" to switch between modes anytime
+- **Legato support:** Multiple overlapping MIDI notes play smoothly without retriggering; silence only when all keys are released
+
 ### Filters
 - **High-Pass Filter (HPF):** 20 Hz – 8000 Hz cutoff frequency
 - **Low-Pass Filter (LPF):** 8000 Hz – 22500 Hz cutoff frequency
@@ -88,6 +98,10 @@ Option 3 (Direct):
 2. **Enable Controls:**
    - Toggle **Keyboard Control** to nudge frequencies: Z/X adjust OSC1 by ±10 Hz; C/V adjust OSC2 by ±10 Hz (clamped to slider ranges)
    - Toggle **Mouse Control**; the full browser window maps vertical motion to frequency and horizontal to LFO rate. Use the per-oscillator mouse switches (OSC1/OSC2) to choose which oscillators react; input fields are ignored so typing doesn't affect audio
+   - Toggle **MIDI Control** and select a MIDI device. Play MIDI notes to control oscillator frequencies. Use per-oscillator switches (OSC1/OSC2) to route notes to specific oscillators. Choose between two MIDI modes:
+     - **Velocity Mode (default):** MIDI note velocity controls oscillator gain (0–127 → 0–1)
+     - **Modwheel-Only Mode:** Modulation wheel (CC1) exclusively controls gain; notes play at full volume for consistent dynamics via wheel control
+     - Toggle "Use Velocity" to switch between modes
 3. **Configure Oscillators:**
    - Toggle OSC1/OSC2 on/off via checkbox in header
    - Set frequency, waveform type, level, and pan for each
@@ -155,6 +169,7 @@ LFO2 ↷ modulates OSC2 frequency
 ## Tech Stack
 
 - **Web Audio API:** OscillatorNode, GainNode, StereoPannerNode, BiquadFilterNode, WaveShaperNode, DelayNode, ConvolverNode, AnalyserNode
+- **Web MIDI API:** MIDI device enumeration, note on/off, control change (CC1 modulation wheel) handling
 - **UI Framework:** Pico.css
 - **Visualization:** Mermaid.js (flowchart rendering)
 - **Data Storage:** localStorage

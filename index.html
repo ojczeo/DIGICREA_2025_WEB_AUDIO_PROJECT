@@ -39,18 +39,33 @@
             <button class="secondary" onclick="openHelpModal();">📖 Help</button>
             <button class="secondary" onclick="openRoutingModal();">🔀 Routing</button>
           </div>
-          <label>
-            <input type="checkbox" id="keyboardToggle" role="switch" />
-            Keyboard Control
-            <small class="keyboard-hint">Keyboard: Z/X = OSC1 −/+10 Hz, C/V = OSC2 −/+10 Hz</small>
-          </label>  
-
-          <label>
-            <input type="checkbox" id="mouseToggle" role="switch" />
-            Mouse Control
-          </label>
+          <div class="grid">
+            <label>
+              <input type="checkbox" id="keyboardToggle" role="switch" />
+              Keyboard Control
+              <small class="keyboard-hint">Keyboard: Z/X = OSC1 −/+10 Hz, C/V = OSC2 −/+10 Hz</small>
+            </label>
+            <label>
+              <input type="checkbox" id="mouseToggle" role="switch" />
+              Mouse Control
+            </label>
+          </div>
+          <div class="grid">
+            <label>
+              <input type="checkbox" id="midiToggle" role="switch" />
+              MIDI Control
+            </label>
+            <label>
+              Select MIDI Device:
+              <select id="midiSelect"></select>
+              <small id="midiStatus">Initializing...</small>
+            </label>
+            <label>
+              <input type="checkbox" id="midiModeToggle" role="switch" checked />
+              Use Velocity (off = Modwheel only)
+            </label>
+          </div>
         </div>
-
         <!-- Preset management -->
         <div>
           <h5>Presets</h5>
@@ -102,6 +117,10 @@
           <label class="mouse-osc-toggle">
             <input type="checkbox" id="osc1MouseToggle" role="switch" checked />
             Mouse control (OSC1)
+          </label>
+          <label class="midi-osc-toggle" style="display: none;">
+            <input type="checkbox" id="osc1MidiToggle" role="switch" checked />
+            MIDI control (OSC1)
           </label>
           <div class="canvas-container">
             <canvas id="osc1Canvas" class="waveform-canvas" width="400" height="100"></canvas>
@@ -172,6 +191,10 @@
           <label class="mouse-osc-toggle">
             <input type="checkbox" id="osc2MouseToggle" role="switch" />
             Mouse control (OSC2)
+          </label>
+          <label class="midi-osc-toggle" style="display: none;">
+            <input type="checkbox" id="osc2MidiToggle" role="switch" />
+            MIDI control (OSC2)
           </label>
           <div class="canvas-container">
             <canvas id="osc2Canvas" class="waveform-canvas" width="400" height="100"></canvas>
@@ -322,7 +345,7 @@
 
       <!-- Master Output Waveform -->
       <div>
-        
+
         <div class="grid">
           <h2>Master Output</h2>
           <div>
@@ -334,7 +357,7 @@
         </div>
       </div>
       <div class="canvas-container">
-        <canvas id="masterCanvas" class="waveform-canvas" width="800" height="120"></canvas>
+        <canvas id="masterCanvas" class="waveform-canvas" width="800" height="100"></canvas>
         <div class="scale-controls">
           <span class="scale-btn" onclick="changeScale('master', -0.5);">-</span>
           <span class="scale-btn" onclick="changeScale('master', 0.5);">+</span>
@@ -364,8 +387,7 @@
           Hz within each slider’s range.</li>
         <li><strong>Mouse control:</strong> Toggle on; the full browser window maps to frequency (vertical) and LFO rate
           (horizontal). Choose which oscillators react via the OSC1/OSC2 mouse switches; input fields are ignored so
-          typing doesn’t change audio.</li>
-        <li><strong>Oscillators:</strong> Each oscillator has on/off, frequency slider, waveform type
+          typing doesn’t change audio.</li>        <li><strong>MIDI control:</strong> Toggle on and select a MIDI device. MIDI notes play frequencies with per-oscillator control via OSC1/OSC2 switches. Choose between <em>Velocity mode</em> (note velocity controls level) or <em>Modwheel-only mode</em> (modulation wheel controls level exclusively). Use the toggle to switch modes.</li>        <li><strong>Oscillators:</strong> Each oscillator has on/off, frequency slider, waveform type
           (sine/square/saw/triangle), and LFO rate/toggle.</li>
         <li><strong>Visualizers:</strong> Use the 📊 switch in the bottom-right of each canvas to swap waveform ↔
           spectrum; +/− zoom controls sit in the top-right.</li>

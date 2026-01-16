@@ -6,17 +6,34 @@ let mouseEnabled = false;
 let mouseOsc1Enabled = true;
 let mouseOsc2Enabled = false;
 let keyboardEnabled = false;
+let midiEnabled = false;
+let midiInput = null;
+let midiOsc1Enabled = true;
+let midiOsc2Enabled = false;
+let midiUseVelocity = true; // true = velocity mode, false = modwheel only mode
 let osc1Analyser, osc2Analyser, masterAnalyser;
 let animationId;
 let waveformScales = { osc1: 1, osc2: 1, master: 1 };
 let masterSpectrumMode = false;
 let osc1SpectrumMode = false;
 let osc2SpectrumMode = false;
+// Track active MIDI notes for legato support
+let activeNotesOsc1 = new Set();
+let activeNotesOsc2 = new Set();
+let lastVelocityOsc1 = 0;
+let lastVelocityOsc2 = 0;
 
 const PRESETS_KEY = 'audioPresets';
 
 function updateMouseToggleVisibility(enabled) {
     const toggles = document.querySelectorAll('.mouse-osc-toggle');
+    toggles.forEach(el => {
+        el.style.display = enabled ? 'inline-flex' : 'none';
+    });
+}
+
+function updateMidiToggleVisibility(enabled) {
+    const toggles = document.querySelectorAll('.midi-osc-toggle');
     toggles.forEach(el => {
         el.style.display = enabled ? 'inline-flex' : 'none';
     });
@@ -536,6 +553,9 @@ function init() {
         con.onstatechange = updateAudioButtonUI;
         updateAudioButtonUI();
     }
+
+    // Initialize MIDI support
+    initMidi();
 }
 
 // Main function to build the audio graph (the orchestrator)
@@ -820,6 +840,184 @@ function startSound() {
     startVisualization();
 }
 
+// MIDI note to frequency mapping (standard A4 = 440 Hz)
+function midiNoteToFrequency(noteNumber) {
+    return 440 * Math.pow(2, (noteNumber - 69) / 12);
+}
+
+// Initialize MIDI support
+async function initMidi() {
+    try {
+        const midiAccess = await navigator.requestMIDIAccess();
+        const inputs = midiAccess.inputs.values();
+        const inputArray = Array.from(inputs);
+        
+        window.midiInputArray = inputArray; // Store globally for dropdown handler
+        
+        if (inputArray.length === 0) {
+            console.log('No MIDI inputs detected');
+            const status = document.getElementById('midiStatus');
+            if (status) status.textContent = 'No MIDI devices';
+            return;
+        }
+
+        const select = document.getElementById('midiSelect');
+        if (select) {
+            select.innerHTML = '';
+            inputArray.forEach((input, index) => {
+                const option = document.createElement('option');
+                option.value = index;
+                option.textContent = input.name || `MIDI Input ${index + 1}`;
+                select.appendChild(option);
+            });
+            select.value = 0;
+            selectMidiInput(0);
+        }
+    } catch (err) {
+        console.error('MIDI not supported:', err);
+        const status = document.getElementById('midiStatus');
+        if (status) status.textContent = 'MIDI not supported';
+    }
+}
+
+function selectMidiInput(index) {
+    if (midiInput) {
+        midiInput.onmidimessage = null;
+    }
+    if (window.midiInputArray && window.midiInputArray[index]) {
+        midiInput = window.midiInputArray[index];
+        midiInput.onmidimessage = handleMidiMessage;
+        const status = document.getElementById('midiStatus');
+        if (status) status.textContent = `Connected: ${midiInput.name}`;
+        console.log('MIDI input selected:', midiInput.name);
+    }
+}
+
+function handleMidiMessage(message) {
+    if (!midiEnabled || con.state !== 'running') return;
+
+    const [command, note, velocity] = message.data;
+    const status = command & 0xf0;
+    const noteOn = status === 0x90;
+    const noteOff = status === 0x80;
+    const controlChange = status === 0xb0;
+
+    // Handle Note On/Off
+    if (noteOn || noteOff) {
+        console.log('MIDI:', {command, note, velocity, noteOn, noteOff, enabled: midiEnabled, osc1: midiOsc1Enabled, osc2: midiOsc2Enabled});
+
+        if (noteOn && velocity > 0) {
+            const freq = midiNoteToFrequency(note);
+            console.log('Note on, freq:', freq);
+
+            // Track active notes for legato
+            if (midiOsc1Enabled) {
+                activeNotesOsc1.add(note);
+                lastVelocityOsc1 = velocity;
+            }
+            if (midiOsc2Enabled) {
+                activeNotesOsc2.add(note);
+                lastVelocityOsc2 = velocity;
+            }
+
+            if (midiOsc1Enabled) {
+                osc.frequency.value = freq;
+                const slider = document.getElementById('firstOscInput');
+                if (slider) {
+                    const min = parseFloat(slider.min || 20);
+                    const max = parseFloat(slider.max || 4000);
+                    slider.value = Math.min(max, Math.max(min, freq));
+                }
+            }
+
+            if (midiOsc2Enabled) {
+                square_osc.frequency.value = freq;
+                const slider = document.getElementById('squareOscInput');
+                if (slider) {
+                    const min = parseFloat(slider.min || 20);
+                    const max = parseFloat(slider.max || 4000);
+                    slider.value = Math.min(max, Math.max(min, freq));
+                }
+            }
+
+            // Map MIDI velocity to gain (0-127 → 0-1) - only if velocity mode is enabled
+            const gain = velocity / 127;
+            const now = con.currentTime;
+            
+            if (midiUseVelocity) {
+                if (midiOsc1Enabled && osc1Gain) {
+                    osc1Gain.gain.cancelScheduledValues(now);
+                    osc1Gain.gain.setTargetAtTime(gain, now, 0.01); // Smooth exponential ramp
+                }
+                if (midiOsc2Enabled && osc2Gain) {
+                    osc2Gain.gain.cancelScheduledValues(now);
+                    osc2Gain.gain.setTargetAtTime(gain, now, 0.01); // Smooth exponential ramp
+                }
+            } else {
+                // In modwheel-only mode, keep gains at current level on note on (modwheel controls them)
+                if (midiOsc1Enabled && osc1Gain) {
+                    osc1Gain.gain.cancelScheduledValues(now);
+                    // Keep current gain or set to full (1.0) if modwheel hasn't been moved
+                    osc1Gain.gain.setTargetAtTime(1.0, now, 0.01);
+                }
+                if (midiOsc2Enabled && osc2Gain) {
+                    osc2Gain.gain.cancelScheduledValues(now);
+                    osc2Gain.gain.setTargetAtTime(1.0, now, 0.01);
+                }
+            }
+
+            updateDisplay();
+        } else if (noteOff || (noteOn && velocity === 0)) {
+            // Remove note from active set
+            if (midiOsc1Enabled) activeNotesOsc1.delete(note);
+            if (midiOsc2Enabled) activeNotesOsc2.delete(note);
+
+            const now = con.currentTime;
+            
+            // For OSC1: silence only if no more active notes
+            if (midiOsc1Enabled && activeNotesOsc1.size === 0 && osc1Gain) {
+                osc1Gain.gain.cancelScheduledValues(now);
+                osc1Gain.gain.setTargetAtTime(0, now, 0.01); // Smooth fade to silence
+            }
+            
+            // For OSC2: silence only if no more active notes
+            if (midiOsc2Enabled && activeNotesOsc2.size === 0 && osc2Gain) {
+                osc2Gain.gain.cancelScheduledValues(now);
+                osc2Gain.gain.setTargetAtTime(0, now, 0.01); // Smooth fade to silence
+            }
+        }
+    }
+
+    // Handle Control Change (CC) - CC 1 is modulation wheel
+    if (controlChange) {
+        const ccNumber = note; // In CC messages, second byte is CC number
+        const ccValue = velocity; // In CC messages, third byte is CC value (0-127)
+
+        if (ccNumber === 1) {
+            // Modulation wheel (CC 1) controls level
+            const normalized = ccValue / 127; // Convert 0-127 to 0-1
+            console.log('Modulation wheel:', ccValue, 'normalized:', normalized);
+
+            const now = con.currentTime;
+            if (midiOsc1Enabled && osc1Gain) {
+                osc1Gain.gain.cancelScheduledValues(now);
+                osc1Gain.gain.setTargetAtTime(normalized, now, 0.01); // Smooth ramp
+                const slider = document.getElementById('osc1LevelInput');
+                if (slider) slider.value = normalized;
+            }
+
+            if (midiOsc2Enabled && osc2Gain) {
+                osc2Gain.gain.cancelScheduledValues(now);
+                osc2Gain.gain.setTargetAtTime(normalized, now, 0.01); // Smooth ramp
+                const slider = document.getElementById('osc2LevelInput');
+                if (slider) slider.value = normalized;
+            }
+
+            updateDisplay();
+        }
+    }
+}
+
 // this function sets up event listeners : some keys play notes
 // moving the mouse changes frequencies and modulation rate
 function defineListeners() {
@@ -1096,6 +1294,39 @@ function defineListeners() {
             reverbGain.dry.gain.value = 1;
         }
     });
+
+    document.getElementById("midiToggle")?.addEventListener("change", async function(event) {
+        midiEnabled = event.target.checked;
+        updateMidiToggleVisibility(midiEnabled);
+        if (midiEnabled && con?.state !== 'running') {
+            try {
+                await con.resume();
+            } catch (e) {
+                console.warn('AudioContext resume blocked', e);
+            }
+        }
+    });
+
+    document.getElementById("midiSelect")?.addEventListener("change", function(event) {
+        selectMidiInput(parseInt(event.target.value));
+    });
+
+    document.getElementById("osc1MidiToggle")?.addEventListener("change", function(event) {
+        midiOsc1Enabled = event.target.checked;
+    });
+
+    document.getElementById("osc2MidiToggle")?.addEventListener("change", function(event) {
+        midiOsc2Enabled = event.target.checked;
+    });
+    
+    document.getElementById("midiModeToggle")?.addEventListener("change", function(event) {
+        midiUseVelocity = event.target.checked;
+    });
+    
+    // Synchronize MIDI oscillator toggles with checkbox states
+    midiOsc1Enabled = document.getElementById("osc1MidiToggle")?.checked ?? true;
+    midiOsc2Enabled = document.getElementById("osc2MidiToggle")?.checked ?? false;
+    midiUseVelocity = document.getElementById("midiModeToggle")?.checked ?? true;
     
     // Preset name input listener - only updates button text, doesn't load
     document.getElementById("presetName")?.addEventListener("input", function(event) {

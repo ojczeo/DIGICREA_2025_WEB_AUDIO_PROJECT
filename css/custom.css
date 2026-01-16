@@ -21,6 +21,14 @@
   margin-top: 0.35rem;
 }
 
+.mouse-osc-toggle,
+.midi-osc-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  margin: 0.35rem 0 0.5rem;
+}
+
 .spectrum-toggle {
   position: absolute;
   bottom: 20px;
