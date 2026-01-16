@@ -3,53 +3,52 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width">
-  <title>Simple LFO example</title>
+  <title>Two oscillators Synthesizer</title>
   <script src="js/script.js"></script>
   <link rel="stylesheet" href="css/pico.min.css">
+  <link rel="stylesheet" href="css/pico.colors.min.css">
+  <link rel="stylesheet" href="css/custom.css">
+  <script src="js/mermaid.min.js"></script>
+  <script>
+    mermaid.initialize({
+      startOnLoad: false,
+      theme: 'dark'
+    });
+  </script>
 </head>
 
 <body>
   <div class="container-fluid">
     <header>
       <div class="grid">
-        <h1>Two oscillators</h1>
+        <h1>Two Oscillators Synthesizer</h1>
         <div>
-
+          <small>
+            <a href="https://github.com/ojczeo/DIGICREA_2025_WEB_AUDIO_PROJECT" target="_blank" rel="noopener">
+              GitHub: ojczeo/DIGICREA_2025_WEB_AUDIO_PROJECT
+            </a>
+          </small>
         </div>
-        <small>
-          <a href="https://github.com/ojczeo/DIGICREA_2025_WEB_AUDIO_PROJECT" target="_blank" rel="noopener">
-            GitHub: ojczeo/DIGICREA_2025_WEB_AUDIO_PROJECT
-          </a>
-        </small>
       </div>
 
       <!-- Top UI: button, mouse control, legend -->
       <div class="grid">
         <div>
-
-          <div class="grid">
-            <div>
-              <button id="audioStatus" onclick="toggleAudio();">Click to start audio</button>
-              <button class="secondary" onclick="openHelpModal();">Help</button>
-            </div>
-            <div>
-              <label>
-                <input type="checkbox" id="keyboardToggle" role="switch" />
-                Keyboard Control
-              </label>
-              <label>
-                <input type="checkbox" id="mouseToggle" role="switch" />
-                Mouse Control
-              </label>
-            </div>
-
+          <div role="group">
+            <button id="audioStatus" onclick="toggleAudio();">▶️ Click to start audio</button>
+            <button class="secondary" onclick="openHelpModal();">📖 Help</button>
+            <button class="secondary" onclick="openRoutingModal();">🔀 Routing</button>
           </div>
-          <div>
-            <label>
-              Master Level: <span id="masterLevelDisplay">0.50</span>
-              <input id="masterLevelInput" type="range" value="0.5" min="0" max="1" step="0.01" />
-            </label>
-          </div>
+          <label>
+            <input type="checkbox" id="keyboardToggle" role="switch" />
+            Keyboard Control
+            <small class="keyboard-hint">Keyboard: Z/X = OSC1 −/+10 Hz, C/V = OSC2 −/+10 Hz</small>
+          </label>  
+
+          <label>
+            <input type="checkbox" id="mouseToggle" role="switch" />
+            Mouse Control
+          </label>
         </div>
 
         <!-- Preset management -->
@@ -65,7 +64,7 @@
               </label>
             </div>
             <div>
-              <button class="outline" id="savePresetBtn" onclick="savePreset();">Save</button>
+              <button class="outline" id="savePresetBtn" onclick="savePreset();">💾 Save</button>
             </div>
           </div>
           <div class="grid">
@@ -76,14 +75,13 @@
                 </select>
               </label>
             </div>
-            <div role=""">
-              <button onclick=" loadPreset();">Load</button>
-              <button onclick="deletePreset();" style="background-color: #ef4444; color: white;">Delete</button>
-              <button class="outline" onclick="downloadPresets();">Download</button>
-              <input type="file" id="presetFileInput" accept=".json" style="display: none;"
-                onchange="uploadPresets(event);" />
-              <button class="outline secondary"
-                onclick="document.getElementById('presetFileInput').click();">Upload</button>
+            <div role="group">
+              <button onclick="loadPreset();">📂 Load</button>
+              <button id="deletePresetBtn" onclick="deletePreset();">🗑️ Delete</button>
+              <button class="outline" onclick="downloadPresets();">⬇️ Download</button>
+              <input type="file" id="presetFileInput" accept=".json" onchange="uploadPresets(event);" />
+              <button class="outline secondary" onclick="document.getElementById('presetFileInput').click();">⬆️
+                Upload</button>
             </div>
           </div>
         </div>
@@ -95,13 +93,44 @@
       <!-- First oscillator with LFO and Second oscillator -->
       <div class="grid">
         <div>
-          <h2>1st oscillator</h2>
-          <!-- 3 columns: Frequency, Type, LFO -->
+          <h2>
+            <label class="osc-toggle-label">
+              <input type="checkbox" id="osc1Toggle" role="switch" checked class="switch-compact" />
+            </label>
+            1st oscillator
+          </h2>
+          <label class="mouse-osc-toggle">
+            <input type="checkbox" id="osc1MouseToggle" role="switch" checked />
+            Mouse control (OSC1)
+          </label>
+          <div class="canvas-container">
+            <canvas id="osc1Canvas" class="waveform-canvas" width="400" height="100"></canvas>
+            <div class="scale-controls">
+              <span class="scale-btn pico-background-zinc-900" onclick="changeScale('osc1', -0.5);">-</span>
+              <span class="scale-btn pico-background-zinc-900" onclick="changeScale('osc1', 0.5);">+</span>
+            </div>
+            <label class="spectrum-toggle">
+              <input type="checkbox" id="osc1SpectrumToggle" role="switch"
+                onchange="toggleOscillatorSpectrum('osc1');" />
+              📊
+            </label>
+          </div>
+          <!-- 4 columns: Frequency, Level & Pan, Type, LFO -->
           <div class="grid">
+            <!-- Level & Pan column -->
+            <div>
+              <label>
+                Level: <span id="osc1LevelDisplay">0.50</span>
+                <input id="osc1LevelInput" type="range" value="0.5" min="0" max="1" step="0.01" />
+              </label>
+              <label>
+                Pan: <span id="osc1PanDisplay">0.00</span>
+                <input id="osc1PanInput" type="range" value="0" min="-1" max="1" step="0.01" />
+              </label>
+            </div>
             <!-- Frequency column -->
             <div>
               <label>
-                <input type="checkbox" id="osc1Toggle" role="switch" checked />
                 Freq: <span id="freq1Display">0</span> Hz
               </label>
               <label>
@@ -127,20 +156,51 @@
                 LFO: <span id="freqLfo">0</span> Hz
               </label>
               <label>
-                <input id="lfoFreqInput" type="range" value="2" min="0.1" max="20" step="0.1" />
+                <input id="lfoFreqInput" type="range" value="2" min="0.1" max="50" step="0.1" />
               </label>
             </div>
           </div>
         </div>
 
         <div>
-          <h2>2nd oscillator</h2>
-          <!-- 3 columns: Frequency, Type, LFO -->
+          <h2>
+            <label class="osc-toggle-label">
+              <input type="checkbox" id="osc2Toggle" role="switch" class="switch-compact" />
+            </label>
+            2nd oscillator
+          </h2>
+          <label class="mouse-osc-toggle">
+            <input type="checkbox" id="osc2MouseToggle" role="switch" />
+            Mouse control (OSC2)
+          </label>
+          <div class="canvas-container">
+            <canvas id="osc2Canvas" class="waveform-canvas" width="400" height="100"></canvas>
+            <div class="scale-controls">
+              <span class="scale-btn" onclick="changeScale('osc2', -0.5);">-</span>
+              <span class="scale-btn" onclick="changeScale('osc2', 0.5);">+</span>
+            </div>
+            <label class="spectrum-toggle">
+              <input type="checkbox" id="osc2SpectrumToggle" role="switch"
+                onchange="toggleOscillatorSpectrum('osc2');" />
+              📊
+            </label>
+          </div>
+          <!-- 4 columns: Frequency, Level & Pan, Type, LFO -->
           <div class="grid">
+            <!-- Level & Pan column -->
+            <div>
+              <label>
+                Level: <span id="osc2LevelDisplay">0.50</span>
+                <input id="osc2LevelInput" type="range" value="0.5" min="0" max="1" step="0.01" />
+              </label>
+              <label>
+                Pan: <span id="osc2PanDisplay">0.00</span>
+                <input id="osc2PanInput" type="range" value="0" min="-1" max="1" step="0.01" />
+              </label>
+            </div>
             <!-- Frequency column -->
             <div>
               <label>
-                <input type="checkbox" id="osc2Toggle" role="switch" />
                 Freq: <span id="freq2Display">0</span> Hz
               </label>
               <label>
@@ -166,7 +226,7 @@
                 LFO: <span id="freqLfo2">0</span> Hz
               </label>
               <label>
-                <input id="lfoFreq2Input" type="range" value="2" min="0.1" max="20" step="0.1" />
+                <input id="lfoFreq2Input" type="range" value="2" min="0.1" max="50" step="0.1" />
               </label>
             </div>
           </div>
@@ -259,41 +319,93 @@
 
         </div>
       </div>
-    </main>
 
-    <!-- Help Modal -->
-    <dialog id="helpModal">
-      <article>
-        <header>
-          <button aria-label="Close" rel="prev" onclick="closeHelpModal();"></button>
-          <p>
-            <strong>📖 How to Use the Synthesizer</strong>
-          </p>
-        </header>
-        <h3>Controls</h3>
-        <ul>
-          <li><strong>Keyboard Control:</strong> Enable the toggle and press W, X, C, V keys to change frequency of the
-            1st oscillator</li>
-          <li><strong>Mouse Control:</strong> Enable the toggle and move your mouse to change frequency and frequency
-            modulation of the 1st oscillator</li>
-          <li><strong>Oscillators:</strong> Two independent oscillators with frequency, type
-            (sine/square/sawtooth/triangle), and LFO controls</li>
-          <li><strong>Filters:</strong> High-pass (HPF) and Low-pass (LPF) filters to shape the sound</li>
-          <li><strong>Effects:</strong> Distortion, Delay, and Reverb with on/off toggles and parameter controls</li>
-        </ul>
-        <h3>Presets</h3>
-        <ul>
-          <li><strong>Save:</strong> Enter a preset name and click Save (button changes to Override if name exists)</li>
-          <li><strong>Load:</strong> Select a preset from the dropdown and click Load</li>
-          <li><strong>Delete:</strong> Select a preset and click Delete to remove it</li>
-          <li><strong>Download All:</strong> Export all presets to a JSON file</li>
-          <li><strong>Upload:</strong> Import presets from a JSON file (duplicates are renamed automatically)</li>
-        </ul>
-        <footer>
-          <button onclick="closeHelpModal();">Got it!</button>
-        </footer>
-      </article>
-    </dialog>
+      <!-- Master Output Waveform -->
+      <div>
+        
+        <div class="grid">
+          <h2>Master Output</h2>
+          <div>
+            <label>
+              MASTER LEVEL: <span id="masterLevelDisplay">0.50</span>
+              <input id="masterLevelInput" type="range" value="0.5" min="0" max="1" step="0.01" />
+            </label>
+          </div>
+        </div>
+      </div>
+      <div class="canvas-container">
+        <canvas id="masterCanvas" class="waveform-canvas" width="800" height="120"></canvas>
+        <div class="scale-controls">
+          <span class="scale-btn" onclick="changeScale('master', -0.5);">-</span>
+          <span class="scale-btn" onclick="changeScale('master', 0.5);">+</span>
+        </div>
+        <label class="spectrum-toggle">
+          <input type="checkbox" id="spectrumToggle" role="switch" onchange="toggleMasterSpectrum();" />
+          📊
+        </label>
+      </div>
+  </div>
+  </main>
+
+  <!-- Help Modal -->
+  <dialog id="helpModal" onclick="if(event.target === this) closeHelpModal();">
+    <article>
+      <header>
+        <button aria-label="Close" rel="prev" onclick="closeHelpModal();"></button>
+        <p>
+          <strong>📖 How to Use the Synthesizer</strong>
+        </p>
+      </header>
+      <h3>Controls</h3>
+      <ul>
+        <li><strong>Start audio:</strong> Click the ▶️ button once to unlock audio; use the same button to pause/resume.
+        </li>
+        <li><strong>Keyboard control:</strong> Toggle on. Use Z/X to nudge OSC1 −/+10 Hz and C/V to nudge OSC2 −/+10
+          Hz within each slider’s range.</li>
+        <li><strong>Mouse control:</strong> Toggle on; the full browser window maps to frequency (vertical) and LFO rate
+          (horizontal). Choose which oscillators react via the OSC1/OSC2 mouse switches; input fields are ignored so
+          typing doesn’t change audio.</li>
+        <li><strong>Oscillators:</strong> Each oscillator has on/off, frequency slider, waveform type
+          (sine/square/saw/triangle), and LFO rate/toggle.</li>
+        <li><strong>Visualizers:</strong> Use the 📊 switch in the bottom-right of each canvas to swap waveform ↔
+          spectrum; +/− zoom controls sit in the top-right.</li>
+        <li><strong>Master:</strong> Master level slider plus its own 📊 toggle and zoom to inspect the mixed signal.
+        </li>
+        <li><strong>Filters:</strong> High-pass (HPF) and Low-pass (LPF) sliders shape the tone.</li>
+        <li><strong>Effects:</strong> Distortion (level), Delay (time/feedback), Reverb (mix) with individual toggles.
+        </li>
+        <li><strong>Routing:</strong> Click 🔀 Routing to open the live signal-flow diagram; close with the ✖️ button or
+          by clicking outside.</li>
+      </ul>
+      <h3>Presets</h3>
+      <ul>
+        <li><strong>Save:</strong> Enter a preset name and click Save (button changes to Override if name exists)</li>
+        <li><strong>Load:</strong> Select a preset from the dropdown and click Load</li>
+        <li><strong>Delete:</strong> Select a preset and click Delete to remove it</li>
+        <li><strong>Download All:</strong> Export all presets to a JSON file</li>
+        <li><strong>Upload:</strong> Import presets from a JSON file (duplicates are renamed automatically)</li>
+      </ul>
+      <footer>
+        <button onclick="closeHelpModal();">✅ Got it!</button>
+      </footer>
+    </article>
+  </dialog>
+
+  <!-- Routing Modal -->
+  <dialog id="routingModal" onclick="if(event.target === this) closeRoutingModal();">
+    <article>
+      <header>
+        <button aria-label="Close" rel="prev" onclick="closeRoutingModal();"></button>
+        <p>
+          <strong>🔀 Audio Signal Flow Chart</strong>
+        </p>
+      </header>
+      <div id="dynamicMermaid" class="mermaid"></div>
+      <footer>
+        <button onclick="closeRoutingModal();">✖️ Close</button>
+      </footer>
+    </article>
+  </dialog>
   </div>
 </body>
 

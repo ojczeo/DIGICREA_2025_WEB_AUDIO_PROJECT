@@ -1,0 +1,253 @@
+/* Custom CSS Variables */
+:root {
+  --pico-font-size: 0.875rem;
+  --pico-line-height: 0.875rem;
+}
+
+/* Toggle styles */
+.osc-toggle-label {
+  display: inline-block;
+  margin-right: 1rem;
+}
+
+.switch-compact {
+  margin: 0;
+}
+
+.keyboard-hint {
+  display: block;
+  font-size: 0.8rem;
+  color: var(--pico-muted-color, #b3b3b3);
+  margin-top: 0.35rem;
+}
+
+.spectrum-toggle {
+  position: absolute;
+  bottom: 20px;
+  right: 5px;
+  margin: 0;
+  font-size: 0.75rem;
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+.spectrum-toggle input {
+  margin: 0;
+}
+
+/* Canvas containers */
+.canvas-container {
+  position: relative;
+}
+
+/* Canvas elements */
+.waveform-canvas {
+  width: 100%;
+  background: #1a1a1a;
+  border-radius: 8px;
+  margin-bottom: 1rem;
+}
+
+#osc1Canvas,
+#osc2Canvas {
+  height: 100px;
+}
+
+#masterCanvas {
+  height: 150px;
+}
+
+/* Scale controls */
+.scale-controls {
+  position: absolute;
+  top: 4px;
+  right: 4px;
+  display: flex;
+  gap: 0.25rem;
+}
+
+.scale-btn {
+  cursor: pointer;
+  padding: 0.25rem 0.5rem;
+  font-size: 0.875rem;
+  border-radius: 4px;
+  user-select: none;
+  cursor: pointer;
+}
+
+/* Delete button */
+#deletePresetBtn {
+  background-color: var(--pico-color-red-500);
+  color: white;
+}
+
+/* File input */
+#presetFileInput {
+  display: none;
+}
+
+/* Button groups - prevent overflow */
+[role="group"] {
+  display: flex;
+  flex-wrap: wrap;
+}
+
+[role="group"] button {
+  flex: 1 1 auto;
+  min-width: fit-content;
+  white-space: nowrap;
+}
+
+/* Routing Modal Diagram */
+.routing-diagram {
+  max-width: 600px;
+  margin: 0 auto;
+  padding: 1rem;
+}
+
+.routing-section {
+  margin: 1.5rem 0;
+  text-align: center;
+}
+
+.routing-section h4 {
+  margin-bottom: 0.75rem;
+  color: var(--pico-primary);
+  font-size: 1rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.routing-node {
+  background: linear-gradient(135deg, rgba(255,255,255,0.1), rgba(255,255,255,0.05));
+  border: 2px solid rgba(255,255,255,0.2);
+  border-radius: 8px;
+  padding: 0.75rem 1rem;
+  margin: 0.5rem auto;
+  max-width: 300px;
+  font-weight: 500;
+  text-align: center;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+}
+
+.routing-node small {
+  display: block;
+  margin-top: 0.25rem;
+  opacity: 0.7;
+  font-size: 0.75rem;
+}
+
+.routing-node.source {
+  border-color: var(--pico-color-cyan-400);
+  background: linear-gradient(135deg,
+    color-mix(in srgb, var(--pico-color-cyan-400) 24%, transparent),
+    color-mix(in srgb, var(--pico-color-cyan-400) 12%, transparent));
+}
+
+.routing-node.filter {
+  border-color: var(--pico-color-pink-400);
+  background: linear-gradient(135deg,
+    color-mix(in srgb, var(--pico-color-pink-400) 24%, transparent),
+    color-mix(in srgb, var(--pico-color-pink-400) 12%, transparent));
+}
+
+.routing-node.effect {
+  border-color: var(--pico-color-amber-400);
+  background: linear-gradient(135deg,
+    color-mix(in srgb, var(--pico-color-amber-400) 24%, transparent),
+    color-mix(in srgb, var(--pico-color-amber-400) 12%, transparent));
+}
+
+.routing-node.master {
+  border-color: var(--pico-color-emerald-400);
+  background: linear-gradient(135deg,
+    color-mix(in srgb, var(--pico-color-emerald-400) 24%, transparent),
+    color-mix(in srgb, var(--pico-color-emerald-400) 12%, transparent));
+}
+
+.routing-node.destination {
+  border-color: var(--pico-color-red-400);
+  background: linear-gradient(135deg,
+    color-mix(in srgb, var(--pico-color-red-400) 24%, transparent),
+    color-mix(in srgb, var(--pico-color-red-400) 12%, transparent));
+  font-size: 1.25rem;
+}
+
+.routing-arrow {
+  text-align: center;
+  font-size: 2rem;
+  color: var(--pico-primary);
+  margin: 0.5rem 0;
+  line-height: 1;
+}
+
+.routing-lfo {
+  margin-top: 1rem;
+  padding: 0.75rem;
+  background: rgba(255,255,255,0.05);
+  border-radius: 6px;
+  border: 1px dashed rgba(255,255,255,0.2);
+}
+
+.lfo-connection {
+  font-size: 0.875rem;
+  opacity: 0.8;
+  padding: 0.25rem;
+  font-family: monospace;
+}
+
+/* Routing Modal Styles */
+.routing-diagram {
+  padding: 1rem 0;
+}
+
+.routing-flow {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.routing-section {
+  text-align: center;
+}
+
+.routing-section h4 {
+  margin-bottom: 0.5rem;
+  color: var(--pico-primary);
+}
+
+.routing-node {
+  background: rgba(255, 255, 255, 0.05);
+  padding: 0.75rem 1rem;
+  border-radius: 8px;
+  margin: 0.25rem 0;
+  border-left: 3px solid var(--pico-primary);
+}
+
+.routing-node.final {
+  background: rgba(var(--pico-primary-rgb), 0.1);
+  font-weight: bold;
+  font-size: 1.1rem;
+}
+
+.routing-arrow {
+  font-size: 1.5rem;
+  color: var(--pico-primary);
+  margin: 0.25rem 0;
+}
+
+.routing-notes {
+  margin-top: 1.5rem;
+  padding-top: 1rem;
+  border-top: 1px solid var(--pico-muted-border-color);
+}
+
+.routing-notes h4 {
+  margin-bottom: 0.5rem;
+}
+
+.routing-notes ul {
+  margin: 0;
+  padding-left: 1.5rem;
+}

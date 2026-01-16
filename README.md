@@ -1,90 +1,191 @@
-# Web Audio Synth: Two Oscillators + LFO, Filters, and Effects
+# Web Audio Synth: Dual Oscillators with Stereo Panning, LFO Modulation, Filters & Effects
 
-A simple browser-based synthesizer built with the Web Audio API. It features two oscillators, LFO modulation, basic filters (HPF/LPF), effects (Distortion, Delay, Reverb), master level control, and a lightweight preset system (save/load/export/import via `localStorage`). The UI is styled with Pico.css.
+A professional browser-based synthesizer built with the Web Audio API. Features two independently controllable oscillators with stereo panning, per-oscillator LFO modulation, parametric filters (HPF/LPF), a comprehensive effects chain (Distortion, Delay, Reverb), and an intuitive preset management system with visual signal flow routing diagram.
 
 ## Features
-- Two oscillators: independent frequency and waveform (`sine`, `square`, `sawtooth`, `triangle`)
-- Per-oscillator LFO: toggle and frequency control
-- Filters: High-Pass (HPF) and Low-Pass (LPF)
-- Effects: Distortion (amount), Delay (time, feedback), Reverb (mix)
-- Master level: global output volume
-- Controls: mouse modulation and keyboard notes (W, X, C, V)
-- Presets: save/load/delete, export to JSON, import from JSON; defaults auto-loaded from `js/audio-presets.json` if empty
-- Help modal: in-app usage guide
+
+### Oscillators
+- **Two independent oscillators** with selectable waveforms: Sine, Square, Sawtooth, Triangle
+- **Per-oscillator controls:**
+  - Frequency range: 20 Hz – 4000 Hz
+  - Level control: 0.0 – 1.0 (individual volume per oscillator)
+  - Stereo panning: −1.0 (left) to +1.0 (right) for spatial positioning
+  - On/off toggle switch
+
+### LFO Modulation
+- **Two independent LFOs** (one per oscillator)
+- **LFO controls:**
+  - Frequency range: 0.1 Hz – 50 Hz (expanded for dramatic modulation effects)
+  - Toggle enable/disable per LFO
+  - Modulates oscillator frequency in real-time
+
+### Filters
+- **High-Pass Filter (HPF):** 20 Hz – 8000 Hz cutoff frequency
+- **Low-Pass Filter (LPF):** 8000 Hz – 22500 Hz cutoff frequency
+- Smooth, real-time frequency adjustment
+
+### Effects Chain
+- **Distortion:** WaveShaper with adjustable amount (0–100)
+- **Delay:** Configurable time (0–2 seconds) and feedback (0–0.9)
+- **Reverb:** Convolver-based with wet/dry mix control (0–1.0)
+- All effects can be toggled on/off independently
+- Wet/dry bypass mixing for each effect
+
+### Master Output
+- **Master gain control:** 0.0 – 1.0 (global output volume)
+- **Real-time waveform analyzer** showing combined output
+- **Visual signal flow diagram** showing active components and routing
+
+### Presets & Visualization
+- **Save/Load/Delete presets** via dropdown menu
+- **Export presets** to JSON file for backup/sharing
+- **Import presets** from JSON file
+- **Dynamic routing diagram:** Interactive Mermaid flowchart showing:
+  - All active oscillators with level and pan positions
+  - LFO modulation connections (dashed lines)
+  - Filter stages and active effects
+  - Master output and destination
+  - Color-coded nodes by component type
+- **Preset data includes:** all oscillator settings, filter frequencies, effect states, levels, panning, and LFO parameters
+
+### Waveform Visualization
+- **Real-time waveform displays** for each oscillator and master output
+- **Zoom controls** (±) to scale waveform amplitude
+- **FFT analysis** for frequency-domain visualization
+
+### UI/UX
+- **Modal dialogs** with click-to-close on overlay
+- **Emoji icons** on all buttons for quick recognition
+- **Organized layout** with on/off switches in oscillator headers
+- **Responsive grid layout** for intuitive control grouping
+- **Color-coded interface** using Pico.css
 
 ## Getting Started
 
 ### Prerequisites
-- A modern browser supporting the Web Audio API (Chrome, Edge, Firefox, Safari)
+- Modern browser supporting Web Audio API (Chrome, Edge, Firefox, Safari)
 
 ### Open Online
-The app is hosted via GitHub Pages:
-
 https://ojczeo.github.io/DIGICREA_2025_WEB_AUDIO_PROJECT/
 
 ### Run Locally
-The app can be opened directly, but preset loading from JSON uses `fetch`, which usually requires serving via HTTP. For best results, use a local server:
-
-Option 1 (Node, if installed):
+Option 1 (Node):
 ```bash
 cd "DIGICREA_2025_WEB_AUDIO_PROJECT"
 npx serve -p 8000
 ```
 
-Option 2
+Option 2 (VS Code):
+- Install Live Server extension
+- Right-click `index.html` → "Open with Live Server"
 
-Just open `index.html` in a web browser.
-
-If you choose to double-click `index.html` (file://), audio works, but default presets might not load due to fetch/CORS restrictions.
-
-Option 3 (VS Code): use the Live Server extension and open `index.html`.
+Option 3 (Direct):
+- Open `index.html` directly in browser (audio works; presets may not load from JSON due to CORS)
 
 ## Usage
-1. Click "Click to start audio" to initialize/resume the audio context.
-2. Toggle Keyboard Control to enable note keys: W, X, C, V.
-3. Toggle Mouse Control to modulate: horizontal = LFO freq, vertical = Osc 1 freq.
-4. Adjust oscillator waveforms and frequencies, enable/disable LFOs.
-5. Shape tone with HPF/LPF. Add effects: Distortion, Delay, Reverb.
-6. Use Master Level to set output volume.
+
+1. **Start Audio:** Click "▶️ Play" or interact with any control to initialize the audio context
+2. **Enable Controls:**
+   - Toggle **Keyboard Control** to nudge frequencies: Z/X adjust OSC1 by ±10 Hz; C/V adjust OSC2 by ±10 Hz (clamped to slider ranges)
+   - Toggle **Mouse Control**; the full browser window maps vertical motion to frequency and horizontal to LFO rate. Use the per-oscillator mouse switches (OSC1/OSC2) to choose which oscillators react; input fields are ignored so typing doesn't affect audio
+3. **Configure Oscillators:**
+   - Toggle OSC1/OSC2 on/off via checkbox in header
+   - Set frequency, waveform type, level, and pan for each
+   - Enable LFO and set modulation frequency (0.1–50 Hz)
+4. **Shape Tone:**
+   - Adjust HPF cutoff (20–8000 Hz) to remove low frequencies
+   - Adjust LPF cutoff (8000–22500 Hz) to remove high frequencies
+5. **Add Effects:**
+   - Toggle Distortion, Delay, and/Reverb independently
+   - Adjust effect parameters (amount, time, feedback, mix)
+6. **Control Output:**
+   - Use Master Level slider to set global volume
+7. **Monitor Signal Flow:**
+   - Click "🔀 Routing" to view the dynamic signal flow diagram
+8. **Save Your Sound:**
+   - Enter a preset name and click "💾 Save"
+   - Load saved presets from dropdown
+   - Export to JSON or import from file
 
 ## Presets
-- Save: enter a name and click Save (button shows "Override" if the name exists).
-- Load: pick a preset from the dropdown and click Load.
-- Delete: select a preset and click Delete.
-- Export: Download all presets as `audio-presets.json`.
-- Import: Upload a JSON file; duplicates are auto-renamed.
-- Defaults: when `localStorage` is empty, the app tries to fetch `js/audio-presets.json` and load defaults.
 
-Data is stored in `localStorage` under the key `audioPresets`.
+Presets store:
+- Oscillator types, frequencies, levels, panning, enable states
+- LFO frequencies and enable states
+- Filter cutoff frequencies
+- Effect settings (distortion amount, delay time/feedback, reverb mix)
+- Master level
+
+**Preset Operations:**
+- **Save:** Auto-detects and shows "Override" if name exists
+- **Load:** Select from dropdown and click "📂 Load"
+- **Delete:** Select preset and click "🗑️ Delete"
+- **Export:** Download as `audio-presets.json`
+- **Import:** Upload JSON; duplicates auto-renamed
+
+Data stored in `localStorage` under key `audioPresets`.
 
 ## Project Structure
 ```
-index.html
+index.html                    # Main UI
 css/
-  pico.min.css
+  pico.min.css               # Pico.css framework
+  pico.colors.min.css        # Color extension
+  custom.css                 # Custom styles
 js/
-  audio-presets.json
-  script.js
+  script.js                  # Web Audio engine & UI logic
+  mermaid.min.js            # Flowchart rendering library
+  audio-presets.json        # Default presets (optional)
+README.md
 ```
-- `index.html`: UI layout and controls
-- `css/pico.min.css`: Pico.css stylesheet
-- `js/script.js`: Web Audio graph, UI bindings, preset logic
-- `js/audio-presets.json`: optional defaults loaded at startup (if `localStorage` is empty)
 
-## Tech Notes
-- Built with the Web Audio API: oscillators, biquad filters, delay (feedback loop), reverb (generated impulse response), distortion (waveshaper), wet/dry routing, and master gain.
-- Audio starts/resumes only after a user gesture (click/toggle). Browsers block autoplay.
-- Some parameter changes (e.g., delay time) use smoothing to reduce clicks.
+## Signal Flow
+```
+OSC1 (Frequency, Waveform) ──┐
+                              ├─→ Gain (Level) → Panner (Stereo) → Analyzer → LPF
+OSC2 (Frequency, Waveform) ──┤                                      ↓
+                              ├─────────────────────────────────→ LPF
+                              ↓
+                        HPF → [Distortion] → [Delay] → [Reverb] → Master Gain → Master Analyzer → 🔊 Destination
+
+LFO1 ↷ modulates OSC1 frequency
+LFO2 ↷ modulates OSC2 frequency
+```
+
+## Tech Stack
+
+- **Web Audio API:** OscillatorNode, GainNode, StereoPannerNode, BiquadFilterNode, WaveShaperNode, DelayNode, ConvolverNode, AnalyserNode
+- **UI Framework:** Pico.css
+- **Visualization:** Mermaid.js (flowchart rendering)
+- **Data Storage:** localStorage
+- **Browser APIs:** Canvas (waveform drawing), Fetch (preset loading)
+
+## Notes
+
+- **Audio Context:** Starts/resumes only after user interaction (required by browser autoplay policies)
+- **Smooth Parameter Changes:** Ramping applied to reduce audio artifacts (clicks/pops)
+- **Wet/Dry Mixing:** All effects support bypass mixing for blending processed and dry signals
+- **Real-time Modulation:** LFO changes apply immediately without audio artifacts
+- **CORS:** Preset JSON loading may fail when opening `index.html` directly (file://); use a local server
 
 ## Troubleshooting
-- Presets not loading: run via a local HTTP server (see above) so `fetch('js/audio-presets.json')` succeeds.
-- No sound after load: click the Start button to resume the audio context. Some browsers (especially Safari) require explicit interaction.
-- Mouse control inactive: ensure Mouse Control toggle is enabled and focus is not on an input/select.
+
+| Issue | Solution |
+|-------|----------|
+| No sound | Click "▶️ Play" button to start audio context |
+| Presets not loading | Run via HTTP server (see above) |
+| Low/distorted audio | Reduce levels on oscillators or effects; adjust Master Level |
+| LFO not modulating | Ensure LFO toggle is ON and frequency > 0 |
+| Effects not heard | Toggle effect ON and adjust parameters (distortion amount, delay/reverb mix) |
 
 ## Credits
-- UI: [Pico.css](https://picocss.com/)
-- Audio: Web Audio API (MDN docs)
-- Michel Buffa: basic sketch of the app (michel.buffa@univ-cotedazur.fr)
+
+- **UI:** [Pico.css](https://picocss.com/)
+- **Flowchart:** [Mermaid.js](https://mermaid.js.org/)
+- **Web Audio API:** MDN Documentation
+- **Original Concept:** Michel Buffa (michel.buffa@univ-cotedazur.fr)
 
 ## License
-Educational project; license TBD.
+
+Educational project; open source.
+
